@@ -1,0 +1,17 @@
+{
+  "name": "article54server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "../node_modules/.bin/tsc"
+  },
+  "dependencies": {
+    "backendium": "^0.0.10",
+    "checkeasy": "^1.2.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.3"
+  },
+  "private": true
+}
