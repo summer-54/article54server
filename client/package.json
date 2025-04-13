@@ -1,0 +1,15 @@
+{
+  "name": "client",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/superagent": "^8.1.9"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "superagent": "^10.2.0",
+    "tar": "^7.4.3"
+  }
+}
