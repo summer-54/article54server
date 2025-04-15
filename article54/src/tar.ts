@@ -1,7 +1,17 @@
 import * as tar from "tar-stream";
-import { Readable } from 'stream';
+import {Readable} from "stream";
+import {ValidationError} from "checkeasy";
 
 export default class Tar {
+    static validator(value: any, key: string): Tar {
+        try {
+            return new Tar(Buffer.from(value, "base64"))
+        }
+        catch (error) {
+            throw new ValidationError(`${key} must be Buffer`);
+        }
+    }
+
     constructor(protected buffer: Buffer) {}
 
     list(): Promise<string[]> {
@@ -61,7 +71,7 @@ export default class Tar {
         return file;
     }
 
-    async object() {
+    async object(): Promise<Record<string, Buffer>> {
         return Object.fromEntries(await Promise.all((await this.list())
             .map(async file => [file, await this.extract(file)] as [string, Buffer])));
     }

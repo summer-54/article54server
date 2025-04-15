@@ -1,5 +1,6 @@
 import Backendium from "backendium";
 import files from "./files.js";
+import {setupEnv} from "./db.js";
 
 const app = new Backendium({
     host: process.env.HOST,
@@ -9,4 +10,7 @@ const app = new Backendium({
 
 app.router(files);
 
-app.start();
+(async () => {
+    await setupEnv();
+    app.start();
+})();

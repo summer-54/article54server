@@ -12,10 +12,13 @@
     "archiver": "^7.0.1",
     "backendium": "^0.0.10",
     "checkeasy": "^1.2.1",
+    "kysely": "^0.28.0",
+    "pg": "^8.14.1",
     "superagent": "^10.2.0",
     "tar-stream": "^3.1.7"
   },
   "devDependencies": {
+    "@types/pg": "^8.11.13",
     "@types/superagent": "^8.1.9",
     "typescript": "^5.5.3"
   },
