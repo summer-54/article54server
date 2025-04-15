@@ -1,13 +1,19 @@
 import Backendium from "backendium";
+import {object, string} from "checkeasy";
 
 const app = new Backendium({
     host: process.env.HOST,
     port: Number(process.env.PORT)
 });
 
-app.post("/login-check", (request, response) => {
-    console.log(request.body.toString());
-    response.end(true);
+app.post<{body: {auth: string}, headers: {auth: string}}>("/login-check", (request, response) => {
+    console.log(request.body);
+    response.end();
+}, {
+    bodyValidator: object({
+        body: object({auth: string()}, {ignoreUnknown: true}),
+        headers: object({auth: string()}, {ignoreUnknown: true})
+    })
 });
 
 app.start();

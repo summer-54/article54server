@@ -60,4 +60,9 @@ export default class Tar {
         }
         return file;
     }
+
+    async object() {
+        return Object.fromEntries(await Promise.all((await this.list())
+            .map(async file => [file, await this.extract(file)] as [string, Buffer])));
+    }
 }

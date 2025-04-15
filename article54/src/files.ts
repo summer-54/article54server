@@ -1,11 +1,18 @@
 import {BackendiumRouter} from "backendium";
 import {object, ValidationError} from "checkeasy";
 import Tar from "./tar.js";
+import {checkLogin} from "./utils.js";
 
 const router = new BackendiumRouter();
 
 router.post<{tar: Tar}>("/push", async (request, response) => {
-    const files = Object.fromEntries(await Promise.all((await request.body.tar.list()).map(async file => [file, await request.body.tar.extract(file)] as [string, Buffer])));
+    const {tar, ...other} = request.body;
+    if (!(await checkLogin(other, request.headers))) {
+        response.status(401);
+        response.end();
+        return;
+    }
+    const files = await tar.object();
     console.log(files);
     response.end(true);
 }, {
