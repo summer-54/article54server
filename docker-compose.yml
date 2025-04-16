@@ -52,7 +52,8 @@ services:
       MINIO_PORT: 9000
       MINIO_ACCESS_KEY: minioadmin
       MINIO_SECRET_KEY: minioadmin
-      LOGIN_CHECK: "http://backend:8080/login-check"
+      PUSH_CHECK: "http://backend:8080/push-check"
+      PULL_CHECK: "http://backend:8080/pull-check"
     ports:
       - "8081:8080"
   backend:
