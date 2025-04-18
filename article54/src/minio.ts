@@ -1,7 +1,11 @@
 import {Client} from "minio";
 import cryptoRandomString from "crypto-random-string";
 import {CryptoHasher} from "bun";
-import {db} from "./db.js";
+import {type Database, db} from "./db.js";
+import {Transaction} from "kysely";
+
+const MAX_IN_BUCKET = Number(process.env.MAX_IN_BUCKET ?? 100);
+const BUCKET_PREFIX = process.env.BUCKET_PREFIX ?? "article54";
 
 export const minio = new Client({
     endPoint: process.env.MINIO_ENDPOINT ?? "localhost",
@@ -22,12 +26,39 @@ export async function generateFileName(fileName: string, content: Buffer) {
     return file;
 }
 
-export async function pushFile(repo: string, bucket: string, fileName: string, content: Buffer) {
+export async function getNewBucket(transaction: Transaction<Database>) {
+    let map = new Map<string, number>;
+    (await transaction.selectFrom("article54files").select(["bucket"]).execute()).forEach(({bucket}) => {
+        if (!map.has(bucket)) map.set(bucket, 0);
+        map.set(bucket, (map.get(bucket) ?? 0) + 1);
+    });
+    for (const [bucket, count] of Array.from(map.entries())) {
+        if (count < MAX_IN_BUCKET) return bucket;
+    }
+    let bucket = `${BUCKET_PREFIX}.${Array.from(map.keys()).length}`;
+    await minio.makeBucket(bucket);
+    return bucket;
+}
+
+export async function pushFile(repo: string, bucket: string, fileName: string, content: Buffer, transaction: Transaction<Database>) {
     let file = await generateFileName(fileName, content);
-    await db.insertInto("article54files").values({repo, bucket, fileName, file}).executeTakeFirstOrThrow();
+    await transaction.insertInto("article54files").values({repo, bucket, fileName, file}).executeTakeFirstOrThrow();
     await minio.putObject(bucket, file, content);
 }
 
-export async function pushFiles(repo: string, bucket: string, files: Record<string, Buffer>) {
-    await Promise.all(Object.entries(files).map(([fileName, content]) => pushFile(repo, bucket, fileName, content)));
+export async function pushFiles(repo: string, bucket: string, files: Record<string, Buffer>, transaction: Transaction<Database>) {
+    await Promise.all(Object.entries(files).map(([fileName, content]) => pushFile(repo, bucket, fileName, content, transaction)));
+}
+
+export async function removeFiles(files: Array<[string, string]>, transaction: Transaction<Database>) {
+    let map = new Map<string, Array<string>>;
+    await Promise.all(files.map(async ([bucket, file]) =>
+        transaction.deleteFrom("article54files").where(({and, eb}) =>
+            and([eb("bucket", '=', bucket), eb("file", '=', file)])).execute()));
+    files.forEach(([bucket, file]) => {
+        if (!map.has(bucket)) map.set(bucket, []);
+        map.set(bucket, [...(map.get(bucket) ?? []), file]);
+    });
+    await Promise.all(map.entries().map(async ([bucket, files]) =>
+        await minio.removeObjects(bucket, files)));
 }

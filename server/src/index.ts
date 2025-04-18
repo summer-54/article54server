@@ -40,7 +40,7 @@ app.post<{body: {auth: string}, headers: {auth: string}, repo: string}>("/pull-c
     })
 });
 
-app.post("/repos/create", (request, response) => {
+app.post<string>("/repos/create", (request, response) => {
     if (repos.includes(request.body.toLowerCase())) {
         response.status(404);
         response.end();
@@ -49,7 +49,9 @@ app.post("/repos/create", (request, response) => {
     repos.push(request.body.toLowerCase());
     response.end();
 }, {
-    bodyValidator: string()
+    bodyValidator: (value, key) => {
+        return string()(value.toString(), key);
+    }
 });
 
 app.get("/repos", (_, response) => {
