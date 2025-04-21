@@ -62,3 +62,14 @@ export async function removeFiles(files: Array<[string, string]>, transaction: T
     await Promise.all(map.entries().map(async ([bucket, files]) =>
         await minio.removeObjects(bucket, files)));
 }
+
+export async function getFile(repo: string, fileName: string) {
+    try {
+        let {bucket, file} = await db.selectFrom("article54files").where(({eb, and}) => and([eb("repo", '=', repo), eb("fileName", '=', fileName)]))
+            .select(["bucket", "file"]).executeTakeFirstOrThrow();
+        return minio.getObject(bucket, file);
+    }
+    catch {
+        return null;
+    }
+}

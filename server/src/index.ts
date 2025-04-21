@@ -6,9 +6,9 @@ const app = new Backendium({
     port: Number(process.env.PORT)
 });
 
-const repos = [];
+const repos: Array<string> = [];
 
-app.post<{body: {auth: string}, headers: {auth: string}, repo: string}>("/push-check", (request, response) => {
+app.post<{body: {auth: string}, headers: {auth: string}, query: {}, repo: string}>("/push-check", (request, response) => {
     if (!repos.includes(request.body.repo.toLowerCase())) {
         response.status(404);
         response.end();
@@ -20,11 +20,15 @@ app.post<{body: {auth: string}, headers: {auth: string}, repo: string}>("/push-c
     bodyValidator: object({
         body: object({auth: string()}, {ignoreUnknown: true}),
         headers: object({auth: string()}, {ignoreUnknown: true}),
+        query: object({}, {ignoreUnknown: true}),
         repo: string()
-    })
+    }, {ignoreUnknown: true}),
+    validationErrorHandler() {
+        console.log(arguments);
+    }
 });
 
-app.post<{body: {auth: string}, headers: {auth: string}, repo: string}>("/pull-check", (request, response) => {
+app.post<{headers: {auth: string}, query: {}, repo: string}>("/pull-check", (request, response) => {
     if (!repos.includes(request.body.repo.toLowerCase())) {
         response.status(404);
         response.end();
@@ -34,10 +38,13 @@ app.post<{body: {auth: string}, headers: {auth: string}, repo: string}>("/pull-c
     response.end(request.body.repo.toLowerCase());
 }, {
     bodyValidator: object({
-        body: object({auth: string()}, {ignoreUnknown: true}),
         headers: object({auth: string()}, {ignoreUnknown: true}),
+        query: object({}, {ignoreUnknown: true}),
         repo: string()
-    })
+    }, {ignoreUnknown: true}),
+    validationErrorHandler() {
+        console.log(arguments);
+    }
 });
 
 app.post<string>("/repos/create", (request, response) => {

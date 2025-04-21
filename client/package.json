@@ -9,6 +9,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "archiver": "^7.0.1",
     "superagent": "^10.2.0",
     "tar": "^7.4.3"
   }
