@@ -1,6 +1,6 @@
 import {Client} from "minio";
 import cryptoRandomString from "crypto-random-string";
-import {CryptoHasher} from "bun";
+import crypto from "crypto";
 import {type Database, db} from "./db.js";
 import {Transaction} from "kysely";
 
@@ -19,9 +19,9 @@ export async function generateFileName(fileName: string, content: Buffer) {
     let file: string;
     const a = fileName.replaceAll('\\', '/').split('/');
     do {
-        let hasher = new CryptoHasher("md5");
+        let hasher = crypto.createHash("md5");
         hasher.update(content);
-        file = `${cryptoRandomString({length: 64, type: "url-safe"})}_${a[a.length - 1]}_${hasher.digest().toString("base64")}`
+        file = `${cryptoRandomString({length: 64, type: "url-safe"})}_${a[a.length - 1]}_${hasher.digest("hex")}`
     } while ((await db.selectFrom("article54files").where("file", '=', file).select(["id"]).execute()).length);
     return file;
 }

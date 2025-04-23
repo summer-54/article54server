@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import Backendium from "backendium";
 import files from "./files.js";
 import {setupEnv} from "./db.js";

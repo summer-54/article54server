@@ -1,6 +1,6 @@
 {
   "name": "article54server",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/index.js",
   "scripts": {
@@ -25,5 +25,13 @@
     "@types/superagent": "^8.1.9",
     "typescript": "^5.5.3"
   },
-  "private": true
+  "private": false,
+  "bin": "./dist/index.js",
+  "files": [
+    "src",
+    "dist",
+    "package.json",
+    "tsconfig.json"
+  ],
+  "type": "module"
 }

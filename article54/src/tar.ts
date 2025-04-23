@@ -5,7 +5,8 @@ import {ValidationError} from "checkeasy";
 export default class Tar {
     static validator(value: any, key: string): Tar {
         try {
-            return new Tar(Buffer.from(value, "base64"))
+            if (typeof value === "string") return new Tar(Buffer.from(value, "base64"));
+            return new Tar(Buffer.from(value));
         }
         catch (error) {
             throw new ValidationError(`${key} must be Buffer`);
