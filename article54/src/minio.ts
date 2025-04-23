@@ -64,12 +64,20 @@ export async function removeFiles(files: Array<[string, string]>, transaction: T
 }
 
 export async function getFile(repo: string, fileName: string) {
-    try {
-        let {bucket, file} = await db.selectFrom("article54files").where(({eb, and}) => and([eb("repo", '=', repo), eb("fileName", '=', fileName)]))
-            .select(["bucket", "file"]).executeTakeFirstOrThrow();
-        return minio.getObject(bucket, file);
-    }
-    catch {
-        return null;
-    }
+    return new Promise(async (resolve, reject) => {
+        try {
+            let {bucket, file} = await db.selectFrom("article54files").where(({eb, and}) => and([eb("repo", '=', repo), eb("fileName", '=', fileName)]))
+                .select(["bucket", "file"]).executeTakeFirstOrThrow();
+            const stream = await minio.getObject(bucket, file);
+            let buffer = Buffer.alloc(0);
+            stream.on("data", chunk => {
+                buffer = Buffer.concat([buffer, chunk]);
+            });
+            stream.on("end", () => resolve(buffer));
+            stream.on("error", error => reject(error));
+        }
+        catch {
+            resolve(null);
+        }
+    }); 
 }

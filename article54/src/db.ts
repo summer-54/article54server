@@ -1,4 +1,4 @@
-import {Generated, Kysely, PostgresDialect} from "kysely";
+import {type Generated, Kysely, PostgresDialect} from "kysely";
 import * as pg from "pg";
 
 export interface FilesTable {

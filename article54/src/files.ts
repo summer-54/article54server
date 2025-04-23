@@ -58,7 +58,7 @@ router.get<Buffer, {repo: string, file: string}>("/get/:repo/:file(*)", async (r
     }
     response.end(file);
 }, {
-    paramsValidator: object({repo: string(), file: string()})
+    paramsValidator: object({repo: string(), file: string()}, {ignoreUnknown: true})
 });
 
 export default router;

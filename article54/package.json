@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "../node_modules/.bin/tsc"
+    "prepack": "tsc"
   },
   "dependencies": {
     "@types/archiver": "^6.0.3",
