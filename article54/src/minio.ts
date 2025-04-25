@@ -11,8 +11,8 @@ export const minio = new Client({
     endPoint: process.env.MINIO_ENDPOINT ?? "localhost",
     port: Number(process.env.MINIO_PORT ?? 9000),
     useSSL: false,
-    accessKey: 'minioadmin',
-    secretKey: 'minioadmin'
+    accessKey: process.env.MINIO_ACCESS_KEY,
+    secretKey: process.env.MINIO_SECRET_KEY
 });
 
 export async function generateFileName(fileName: string, content: Buffer) {
@@ -21,7 +21,7 @@ export async function generateFileName(fileName: string, content: Buffer) {
     do {
         let hasher = crypto.createHash("md5");
         hasher.update(content);
-        file = `${cryptoRandomString({length: 64, type: "url-safe"})}_${a[a.length - 1]}_${hasher.digest("hex")}`
+        file = `${cryptoRandomString({length: 64, type: "url-safe"})}_${hasher.digest("hex")}_${a[a.length - 1]}`
     } while ((await db.selectFrom("article54files").where("file", '=', file).select(["id"]).execute()).length);
     return file;
 }

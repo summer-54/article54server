@@ -15,9 +15,9 @@ export async function patchArticle(repo: string, files: Record<string, Buffer>) 
 
 const router = new BackendiumRouter();
 
-router.post<{tar: Tar, repo: string}>("/push", async (request, response) => {
-    const {tar, repo: repo_, ...other} = request.body;
-    const repo = await getPushRepo(other, request.headers, request.query, repo_);
+router.post<{tar: Tar}, {repo: string}>("/:repo/push", async (request, response) => {
+    const {tar, ...other} = request.body;
+    const repo = await getPushRepo(other, request.headers, request.query, request.params.repo);
     if (!repo) {
         response.status(401);
         response.end();
@@ -28,10 +28,11 @@ router.post<{tar: Tar, repo: string}>("/push", async (request, response) => {
     await patchArticle(repo, files);
     response.end();
 }, {
-    bodyValidator: object({tar: Tar.validator, repo: string()}, {ignoreUnknown: true})
+    bodyValidator: object({tar: Tar.validator}, {ignoreUnknown: true}),
+    paramsValidator: object({repo: string()})
 });
 
-router.get<Buffer, {repo: string}>("/list/:repo", async (request, response) => {
+router.get<Buffer, {repo: string}>("/:repo/list", async (request, response) => {
     const repo = await getPullRepo(request.headers, request.query, request.params.repo);
     if (!repo) {
         response.status(401);
@@ -43,7 +44,7 @@ router.get<Buffer, {repo: string}>("/list/:repo", async (request, response) => {
     paramsValidator: object({repo: string()})
 });
 
-router.get<Buffer, {repo: string, file: string}>("/get/:repo/:file(*)", async (request, response) => {
+router.get<Buffer, {repo: string, file: string}>("/:repo/get/:file(*)", async (request, response) => {
     const repo = await getPullRepo(request.headers, request.query, request.params.repo);
     if (!repo) {
         response.status(401);

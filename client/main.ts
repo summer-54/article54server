@@ -35,7 +35,7 @@ async function createTar(files: Array<[string, Buffer, Stats]>): Promise<Buffer>
     let tar = await createTar(files);
     // await fs.writeFile("./test.tar", tar);
 
-    const response = await superagent.post("http://localhost:8081/push")
-        .send({tar: tar.toJSON(), auth: "test", repo: "test"}).set("auth", "test");
-    console.log(response);
+    const response = await superagent.post("http://localhost:8081/test/push")
+        .send({tar: tar.toJSON(), auth: "test"}).set("auth", "test");
+    console.log(response.text);
 })();
